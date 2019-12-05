@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/luzcn/sudoku-solver-go/solver"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
-	"sudoku-solver-go/solver"
 	"time"
 )
 
