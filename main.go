@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/luzcn/sudoku-solver-go/solver"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -13,32 +12,24 @@ import (
 )
 
 func health(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
-		_, _ = fmt.Fprintf(w, r.Host)
-	}
+	_, _ = fmt.Fprintf(w, r.Host)
 }
 
-func readJson(data string) (res []string) {
-	_ = json.Unmarshal([]byte(data), &res)
-	return
-}
-
+// curl -X POST \
+//  http://localhost:5000/solve \
+//  -H 'Content-Type: application/json' \
+//  -d '["53..7....","6..195...", ".98....6.","8...6...3", "4..8.3..1","7...2...6", ".6....28.","...419..5", "....8..79"]'
 func solveHandler(res http.ResponseWriter, req *http.Request) {
+	var body []string
+	err := json.NewDecoder(req.Body).Decode(&body)
 
-	if req.Method != http.MethodPost {
-		_, _ = fmt.Fprintf(res, "Not Supported Method")
-		return
-	}
-
-	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		_, _ = fmt.Fprintf(res, fmt.Sprintf("%s", err))
-		return
+		panic(err)
 	}
 
-	data := readJson(string(body))
 	board := make([][]byte, 0)
-	for _, row := range data {
+	for _, row := range body {
 		board = append(board, []byte(row))
 	}
 
@@ -49,11 +40,6 @@ func solveHandler(res http.ResponseWriter, req *http.Request) {
 	}
 }
 func main() {
-	//http.HandleFunc("/health", health)
-	//http.HandleFunc("/solve", solveHandler)
-	//
-	//log.Println("Start http server")
-	//_ = http.ListenAndServe(":5000", nil)
 	PORT := os.Getenv("PORT")
 	if len(PORT) == 0 {
 		PORT = "5000"
